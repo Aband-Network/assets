@@ -11,6 +11,7 @@ use traits::GetMultiAssetInfo;
 use codec::{Encode, Decode, MaxEncodedLen, Codec};
 use sp_runtime::{RuntimeDebug, traits::{Zero, AccountIdConversion}};
 use scale_info::TypeInfo;
+use sp_std::vec::Vec;
 use orml_traits::{
 	arithmetic::{Signed, SimpleArithmetic},
 	currency::TransferAll,
