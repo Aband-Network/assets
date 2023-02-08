@@ -100,6 +100,10 @@ pub mod pallet {
 		/// Event documentation should end with an array that provides descriptive names for event
 		/// parameters. [something, who]
 		SomethingStored(u32, T::AccountId),
+		CreateAsset{
+			creator: Option<T::AccountId>,
+			asset_id: CurrencyIdOf<T>,
+		}
 	}
 
 	#[pallet::error]
@@ -147,13 +151,17 @@ pub mod pallet {
 				token_symbol.try_into().map_err(|_| Error::<T>::MaxStringExceeded)?;
 
 			AssetsMetadata::<T>::insert(asset_id, AssetMetadata {
-				creator,
+				creator: creator.clone(),
 				owner,
 				name: bounded_name,
 				token_symbol: bounded_token_symbol,
 				decimal,
 				total_issuance,
 				token_account_id,
+			});
+			Self::deposit_event(Event::CreateAsset{
+				creator,
+				asset_id,
 			});
 			Ok(())
 		}
