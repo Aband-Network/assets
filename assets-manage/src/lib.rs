@@ -137,7 +137,7 @@ pub mod pallet {
 
 	impl<T: Config> Pallet<T> {
 		pub fn do_create(asset_id: CurrencyIdOf<T>, creator: Option<T::AccountId>, owner: Option<T::AccountId>, name: Vec<u8>, token_symbol: Vec<u8>, decimal: u16, total_issuance: BalanceOf<T>) -> DispatchResult{
-			ensure!(!T::MultiCurrency::minimum_balance(asset_id).is_zero(), Error::<T>::BalanceNotZero);
+			ensure!(T::MultiCurrency::minimum_balance(asset_id).is_zero(), Error::<T>::BalanceNotZero);
 			ensure!(asset_id != T::GetNativeCurrencyId::get(), Error::<T>::NativeAsset);
 			ensure!(!AssetsMetadata::<T>::contains_key(asset_id), Error::<T>::AssetAlreadyCreated);
 			if let Some(c) = creator.clone() {
