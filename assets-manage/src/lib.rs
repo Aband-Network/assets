@@ -1,6 +1,6 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 
-mod asset_id;
+pub mod asset_id;
 pub mod traits;
 
 /// Edit this file to define custom logic or remove it if it is not needed.
