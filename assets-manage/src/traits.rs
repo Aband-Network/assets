@@ -1,10 +1,12 @@
+use crate::AssetMetadata;
 
-pub trait GetMultiAssetInfo<AssetId, Metadata> {
-    fn get_metadata(asset_id: AssetId) -> Option<Metadata>;
+pub trait GetMultiAssetInfo<AssetId, Metadata, AssetDetails> {
+    fn get_asset_details(asset_id: AssetId) -> Option<AssetDetails>;
+
 }
 
-impl<AssetId, Metadata> GetMultiAssetInfo<AssetId, Metadata> for (){
-    fn get_metadata(asset_id: AssetId) -> Option<Metadata> {
+impl<AssetId, Metadata, AssetDetails> GetMultiAssetInfo<AssetId, Metadata, AssetDetails> for (){
+    fn get_asset_details(asset_id: AssetId) -> Option<AssetDetails> {
         None
     }
 }

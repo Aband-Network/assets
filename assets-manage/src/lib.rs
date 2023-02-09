@@ -33,15 +33,19 @@ use frame_support::{
 // #[cfg(feature = "runtime-benchmarks")]
 // mod benchmarking;
 
+#[derive(Encode, Decode, Clone, Eq, PartialEq, MaxEncodedLen, RuntimeDebug, TypeInfo)]
+pub struct AssetDetails<AccountId, Metadata> {
+	creator: Option<AccountId>,
+	owner: Option<AccountId>,
+	metadata: Metadata,
+}
 
 #[derive(Encode, Decode, Clone, Eq, PartialEq, MaxEncodedLen, RuntimeDebug, TypeInfo)]
 pub struct AssetMetadata<AccountId, Balance, String> {
-	creator: Option<AccountId>,
-	owner: Option<AccountId>,
 	name: String,
 	token_symbol: String,
 	decimal: u16,
-	total_issuance: Balance,
+	deposit: Balance,
 	token_account_id: AccountId,
 }
 
@@ -88,7 +92,7 @@ pub mod pallet {
 
 	#[pallet::storage]
 	#[pallet::getter(fn assets_metadata)]
-	pub type AssetsMetadata<T: Config> = StorageMap<_, Twox64Concat, CurrencyIdOf<T>, AssetMetadata<T::AccountId, BalanceOf<T>, StringOf<T>>, OptionQuery>;
+	pub type AssetsDetails<T: Config> = StorageMap<_, Twox64Concat, CurrencyIdOf<T>, AssetDetails<T::AccountId, AssetMetadata<T::AccountId, BalanceOf<T>, StringOf<T>>>, OptionQuery>;
 
 	#[pallet::storage]
 	#[pallet::getter(fn create_asset_reserve_of)]
@@ -139,7 +143,7 @@ pub mod pallet {
 		pub fn do_create(asset_id: CurrencyIdOf<T>, creator: Option<T::AccountId>, owner: Option<T::AccountId>, name: Vec<u8>, token_symbol: Vec<u8>, decimal: u16, total_issuance: BalanceOf<T>) -> DispatchResult{
 			ensure!(T::MultiCurrency::minimum_balance(asset_id).is_zero(), Error::<T>::BalanceNotZero);
 			ensure!(asset_id != T::GetNativeCurrencyId::get(), Error::<T>::NativeAsset);
-			ensure!(!AssetsMetadata::<T>::contains_key(asset_id), Error::<T>::AssetAlreadyCreated);
+			ensure!(!AssetsDetails::<T>::contains_key(asset_id), Error::<T>::AssetAlreadyCreated);
 			if let Some(c) = creator.clone() {
 				T::MultiCurrency::deposit(asset_id, &c, total_issuance)?;
 			}
@@ -150,14 +154,16 @@ pub mod pallet {
 			let bounded_token_symbol: BoundedVec<u8, T::MaxStringLen> =
 				token_symbol.try_into().map_err(|_| Error::<T>::MaxStringExceeded)?;
 
-			AssetsMetadata::<T>::insert(asset_id, AssetMetadata {
+			AssetsDetails::<T>::insert(asset_id, AssetDetails {
 				creator: creator.clone(),
 				owner,
-				name: bounded_name,
-				token_symbol: bounded_token_symbol,
-				decimal,
-				total_issuance,
-				token_account_id,
+				metadata: AssetMetadata {
+					name: bounded_name,
+					token_symbol: bounded_token_symbol,
+					decimal,
+					deposit: total_issuance,
+					token_account_id,
+				},
 			});
 			Self::deposit_event(Event::CreateAsset{
 				creator,
@@ -168,9 +174,9 @@ pub mod pallet {
 
 	}
 
-	impl <T: Config>GetMultiAssetInfo<CurrencyIdOf<T>, AssetMetadata<T::AccountId, BalanceOf<T>, StringOf<T>>> for Pallet<T> {
-		fn get_metadata(asset_id: CurrencyIdOf<T>) -> Option<AssetMetadata<T::AccountId, BalanceOf<T>, StringOf<T>>> {
-			AssetsMetadata::<T>::get(asset_id)
+	impl <T: Config>GetMultiAssetInfo<CurrencyIdOf<T>, AssetMetadata<T::AccountId, BalanceOf<T>, StringOf<T>>, AssetDetails<T::AccountId, AssetMetadata<T::AccountId, BalanceOf<T>, StringOf<T>>>> for Pallet<T> {
+		fn get_asset_details(asset_id: CurrencyIdOf<T>) -> Option<AssetDetails<T::AccountId, AssetMetadata<T::AccountId, BalanceOf<T>, StringOf<T>>>> {
+			AssetsDetails::<T>::get(asset_id)
 		}
 	}
 }
