@@ -35,18 +35,18 @@ use frame_support::{
 
 #[derive(Encode, Decode, Clone, Eq, PartialEq, MaxEncodedLen, RuntimeDebug, TypeInfo)]
 pub struct AssetDetails<AccountId, Metadata> {
-	creator: Option<AccountId>,
-	owner: Option<AccountId>,
-	metadata: Metadata,
+	pub creator: Option<AccountId>,
+	pub owner: Option<AccountId>,
+	pub metadata: Metadata,
 }
 
 #[derive(Encode, Decode, Clone, Eq, PartialEq, MaxEncodedLen, RuntimeDebug, TypeInfo)]
 pub struct AssetMetadata<AccountId, Balance, String> {
-	name: String,
-	token_symbol: String,
-	decimal: u16,
-	deposit: Balance,
-	token_account_id: AccountId,
+	pub name: String,
+	pub token_symbol: String,
+	pub decimal: u16,
+	pub deposit: Balance,
+	pub token_account_id: AccountId,
 }
 
 
