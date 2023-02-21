@@ -131,7 +131,7 @@ pub mod pallet {
 		#[pallet::weight(Weight::from_ref_time(10_000) + T::DbWeight::get().writes(1))]
 		pub fn create_asset(origin: OriginFor<T>, asset_id: CurrencyIdOf<T>, owner: Option<T::AccountId>, name: Vec<u8>, token_symbol: Vec<u8>, decimal: u16, total_issuance: BalanceOf<T>) -> DispatchResultWithPostInfo {
 			let creator = ensure_signed(origin)?;
-			T::MultiCurrency::reserve_named(&T::CreateAssetReserveIdentifier::get(), asset_id, &creator.clone(), T::CreateReserveBalance::get())?;
+			T::MultiCurrency::reserve_named(&T::CreateAssetReserveIdentifier::get(), T::GetNativeCurrencyId::get(), &creator.clone(), T::CreateReserveBalance::get())?;
 			CreateAssetReserveOf::<T>::insert(asset_id, T::CreateReserveBalance::get());
 			Self::do_create(asset_id, Some(creator.clone()), owner.clone(), name.clone(), token_symbol.clone(), decimal, total_issuance)?;
 			Ok(().into())
